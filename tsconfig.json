@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "ES2020", // Specify ECMAScript target version
+    "module": "ESNext", // Specify module code generation
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // Include necessary libraries
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "skipLibCheck": true, // Skip type checking of declaration files
+
+    /* JSX Support */
+    "jsx": "react-jsx", // Transform JSX using React 17+ automatic runtime
+
+    /* Module Resolution */
+    "moduleResolution": "bundler", // Use modern module resolution
+    "resolveJsonModule": true, // Allow importing JSON files
+    "isolatedModules": true, // Ensure each file can be safely transpiled independently
+
+    /* Strict Type-Checking */
+    "strict": true, // Enable all strict type-checking options
+    "noImplicitAny": true, // Raise error on expressions and declarations with an implied 'any' type
+    "strictNullChecks": true, // Enable strict null checks
+    "strictFunctionTypes": true, // Enable strict checking of function types
+    "strictBindCallApply": true, // Enable strict 'bind', 'call', and 'apply' methods on functions
+    "strictPropertyInitialization": true, // Ensure non-undefined class properties are initialized
+    "noUnusedLocals": true, // Report errors on unused locals
+    "noUnusedParameters": true, // Report errors on unused parameters
+    "noImplicitReturns": true, // Report errors when not all code paths return a value
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch statements
+    "noUncheckedIndexedAccess": true, // Add 'undefined' to the type of indexed access (e.g., array[0])
+
+    /* Additional Checks */
+    "esModuleInterop": true, // Enable compatibility with CommonJS modules
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in file names
+    "noEmit": true, // Disable emitting JavaScript files (use a bundler like Vite or Webpack)
+
+    /* Source Maps */
+    "sourceMap": true, // Generate source maps for debugging
+
+    /* Paths and Base URL */
+    "baseUrl": ".", // Base directory for resolving non-relative module names
+    "paths": {
+      "@/*": ["./src/*"] // Map paths like '@/' to 'src/'
+    }
+  },
+  "include": ["src"], // Include all files in the 'src' directory
+  "exclude": ["node_modules", "dist"] // Exclude 'node_modules' and 'dist' directories
+}
