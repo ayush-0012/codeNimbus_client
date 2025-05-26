@@ -25,11 +25,10 @@ import SessionExpired from "./modal/SessionExpired";
 function WorkSpace() {
   const selectedOption = useAppSelector((state) => state.selectedOption.lang);
   const containerId = useAppSelector((state) => state.container.containerId);
+  const fileId = useAppSelector((state) => state.file.fileId);
   const [code, setCode] = useState<string>();
   const [terminalOutput, setTerminalOutput] = useState<string>(`
-    "Terminal initialized...",
-    "Python 3.9.2",
-    "> ",`);
+    "Terminal initialized..."`);
   const [terminalInput, setTerminalInput] = useState("");
   const [theme, setTheme] = useState("dracula");
   const [fontSize, setFontSize] = useState(16);
@@ -37,7 +36,7 @@ function WorkSpace() {
   const [idleContainer, setIdleContainer] = useState<boolean>(false);
 
   const userId: string | null = localStorage.getItem("userId");
-  const IDLE_TIMEOUT: number = 60 * 1000;
+  const IDLE_TIMEOUT: number = 60 * 60 * 1000;
 
   useEffect(() => {
     resetIdleTime();
@@ -66,7 +65,7 @@ function WorkSpace() {
   function onChange(newValue: string): void {
     setCode(newValue);
 
-    console.log(code);
+    // console.log(code);
   }
 
   // function handleTerminalSubmit(e: React.KeyboardEvent) {
@@ -113,10 +112,13 @@ function WorkSpace() {
   async function executeCode() {
     console.log(resetIdleTime());
     console.log(selectedOption);
+    console.log("fileId", fileId);
+    console.log("containerId", containerId);
     try {
       const response: any = await axiosInstance.post("/api/container/exec", {
         containerId,
         userId,
+        fileId,
         language: selectedOption,
         code,
       });
@@ -315,7 +317,7 @@ function WorkSpace() {
             <span className="text-[#c9d1d9] font-medium">Terminal</span>
           </div>
           <div className="grid mr-14 p-3 bg-[#0d1117] text-[#c9d1d9] font-mono overflow-y-auto">
-            {terminalOutput}
+            <pre>{terminalOutput}</pre>
             <span className="mt-10 text-gray-500">
               === executed the code ===
             </span>
