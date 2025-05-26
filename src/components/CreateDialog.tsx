@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { setLang } from "@/redux/feature/langs/langOptionsSlice";
 import { Bounce, toast } from "react-toastify";
 import { axiosInstance } from "@/utils/axiosInstace";
+import { setFileId } from "@/redux/feature/file/fileSlice";
 
 interface CreateDialogProps {
   open: boolean;
@@ -65,9 +66,17 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
         userId,
       });
 
-      console.log(response);
-      dispatch(setContainerId(response.data.containerId));
-      sessionStorage.setItem("containerId", response.data.containerId);
+      //storing response ids in vars
+      const containerId = response.data.containerId;
+      const fileId = response.data.file.fileId;
+
+      //dispatching ids in redux
+      dispatch(setContainerId(containerId));
+      dispatch(setFileId(fileId));
+
+      //storing ids in session for rehydrating redux on page refresh
+      sessionStorage.setItem("fileId", fileId);
+      sessionStorage.setItem("containerId", containerId);
     } catch (error: any) {
       console.log(error.response.data.clientMsg);
       // console.log(error.response.status);
