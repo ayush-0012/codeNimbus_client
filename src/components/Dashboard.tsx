@@ -1,7 +1,7 @@
 import { SignedIn, UserButton } from "@clerk/clerk-react";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
-import { SidebarProvider } from "./ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { AppSidebar } from "./ui/app-sidebar";
 import { Button } from "./ui/button";
 import { Github, Plus } from "lucide-react";
@@ -18,9 +18,19 @@ interface userObj {
   profilePic: string;
 }
 
+type userFile = {
+  fileId: string;
+  fileName: string;
+  language: string;
+  compressedCode: string;
+  createdAt: Date;
+  userId: string;
+};
+
 function Dashboard() {
   const [CurrUser, setCurrUser] = useState<userObj>();
   const [createDialog, setCreateDialog] = useState<boolean>(false);
+  const [userFiles, setUserFiles] = useState<userFile[]>([]);
 
   const { user, isSignedIn, isLoaded } = useUser();
 
@@ -41,6 +51,10 @@ function Dashboard() {
     if (CurrUser) {
       storeUser();
       localStorage.setItem("userId", CurrUser.userId);
+
+      //api call to fetch user files
+      console.log("userid from state", CurrUser.userId);
+      fetchUserFiles();
     }
   }, [CurrUser]);
 
@@ -71,6 +85,15 @@ function Dashboard() {
         console.log(error, "error storing user");
       }
     }
+  }
+
+  async function fetchUserFiles() {
+    const response = await axiosInstance.get(
+      `/api/user/getFiles?userId=${CurrUser?.userId}`
+    );
+
+    console.log(response.data.files);
+    setUserFiles(response.data.files);
   }
 
   return (
@@ -110,15 +133,13 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="flex w-full">
-        <div className="">
-          <SidebarProvider>
-            <AppSidebar />
-            {/* <SidebarTrigger className="p-2 rounded-lg transition" /> */}
-          </SidebarProvider>
-        </div>
+      <div className="flex">
+        <SidebarProvider className="w-70">
+          <AppSidebar />
+          <SidebarTrigger className="p-2 rounded-lg transition" />
+        </SidebarProvider>
 
-        <div className="mt-10 ml-10 w-full-100">
+        <div className="mt-10 ml-10 w-full-100 h-70">
           <h1 className="text-4xl font-semibold">Recent</h1>
           <p className=" text-xl mt-8">Pick up where you left off</p>
 
@@ -129,8 +150,21 @@ function Dashboard() {
           ) : (
             ""
           )}
+
+          <div className="text-white mt-10 cursor-pointer">
+            {userFiles.map((file, index) => (
+              <div key={file.fileId} className="border-b border-b-white mb-2">
+                {file.fileName}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* <div className="w-full"> */}
+
+      {/* </div> */}
+
       <ToastContainer
         position="top-center"
         autoClose={false}
