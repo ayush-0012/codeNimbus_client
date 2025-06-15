@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { AppSidebar } from "./ui/app-sidebar";
 import { Button } from "./ui/button";
-import { Github, Plus } from "lucide-react";
+import { Github, Plus, UserRoundIcon } from "lucide-react";
 import { Input } from "./ui/input";
 import { ModeToggle } from "./ui/mode-toggle";
 import CreateDialog from "./CreateDialog";
-import { Bounce, ToastContainer } from "react-toastify";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 import { axiosInstance } from "@/utils/axiosInstace";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "@/hooks/redux-hooks";
+import { setContainerId } from "@/redux/feature/container/containerSlice";
+import { setFileId } from "@/redux/feature/file/fileSlice";
+import { setLang } from "@/redux/feature/langs/langOptionsSlice";
 
 interface userObj {
   userId: string;
@@ -18,14 +23,14 @@ interface userObj {
   profilePic: string;
 }
 
-type userFile = {
+interface userFile {
   fileId: string;
   fileName: string;
   language: string;
   compressedCode: string;
   createdAt: Date;
   userId: string;
-};
+}
 
 function Dashboard() {
   const [CurrUser, setCurrUser] = useState<userObj>();
@@ -33,6 +38,8 @@ function Dashboard() {
   const [userFiles, setUserFiles] = useState<userFile[]>([]);
 
   const { user, isSignedIn, isLoaded } = useUser();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     console.log(user);
@@ -96,6 +103,55 @@ function Dashboard() {
     setUserFiles(response.data.files);
   }
 
+  // console.log("user files log", userFiles.files.fileId);
+
+  async function createWorkSpace(fileId: string, language: string) {
+    let resStatusCode: number = 0;
+
+    try {
+      const response = await axiosInstance.post("/api/container/create", {
+        fileId,
+        userId: CurrUser?.userId,
+        language,
+      });
+
+      console.log(response);
+
+      const containerId = response.data.containerId;
+      // const file = response.data.file.fileId;
+
+      dispatch(setContainerId(containerId));
+      dispatch(setFileId(fileId));
+      dispatch(setLang(language));
+
+      sessionStorage.setItem("fileId", fileId);
+      sessionStorage.setItem("containerId", containerId);
+      sessionStorage.setItem("lang", language);
+    } catch (error: any) {
+      console.log(error);
+
+      resStatusCode = error.response.status;
+
+      toast.error(error.response.data.clientMsg, {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
+    } finally {
+      if (resStatusCode === 429) {
+        return;
+      } else {
+        navigate("/workspace");
+      }
+    }
+  }
+
   return (
     <>
       <div className="flex justify-end h-10 pt-4 px-2">
@@ -152,8 +208,12 @@ function Dashboard() {
           )}
 
           <div className="text-white mt-10 cursor-pointer">
-            {userFiles.map((file, index) => (
-              <div key={file.fileId} className="border-b border-b-white mb-2">
+            {userFiles.map((file) => (
+              <div
+                key={file.fileId}
+                className="border-b border-b-white mb-2"
+                onClick={() => createWorkSpace(file.fileId, file.language)}
+              >
                 {file.fileName}
               </div>
             ))}
