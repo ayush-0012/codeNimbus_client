@@ -44,6 +44,8 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
 
   const dispatch = useAppDispatch();
 
+  console.log(activeTab);
+
   const handleCreate = async () => {
     const type = activeTab === "languages" ? "Language" : "Framework";
     console.log("Type:", type);
@@ -70,13 +72,27 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
       const containerId = response.data.containerId;
       const fileId = response.data.file.fileId;
 
-      //dispatching ids in redux
-      dispatch(setContainerId(containerId));
-      dispatch(setFileId(fileId));
+      if (containerId && fileId) {
+        //dispatching ids in redux
+        dispatch(setContainerId(containerId));
+        dispatch(setFileId(fileId));
 
-      //storing ids in session for rehydrating redux on page refresh
-      sessionStorage.setItem("fileId", fileId);
-      sessionStorage.setItem("containerId", containerId);
+        //storing ids in session for rehydrating redux on page refresh
+        sessionStorage.setItem("fileId", fileId);
+        sessionStorage.setItem("containerId", containerId);
+      } else {
+        toast.error("unable to create workspace", {
+          position: "top-center",
+          autoClose: 4000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+      }
     } catch (error: any) {
       console.log(error.response.data.clientMsg);
       // console.log(error.response.status);
@@ -100,7 +116,11 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
       if (resStatusCode === 429) {
         return;
       } else {
-        navigate("/workspace");
+        if (activeTab == "languages") {
+          navigate("/workspace");
+        } else {
+          navigate(`/workspace/${selectedOption}`);
+        }
       }
     }
   };
@@ -205,7 +225,7 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
                       <SelectItem value="angular">Angular</SelectItem>
                       <SelectItem value="django">Django</SelectItem>
                       <SelectItem value="flask">Flask</SelectItem>
-                      <SelectItem value="express">Express</SelectItem>
+                      {/* <SelectItem value="express">Express</SelectItem> */}
                     </SelectContent>
                   </Select>
                 </div>
