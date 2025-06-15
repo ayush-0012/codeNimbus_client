@@ -26,7 +26,7 @@ function WorkSpace() {
   const selectedOption = useAppSelector((state) => state.selectedOption.lang);
   const containerId = useAppSelector((state) => state.container.containerId);
   const fileId = useAppSelector((state) => state.file.fileId);
-  const [code, setCode] = useState<string>();
+  const [code, setCode] = useState<string>("print('hello')");
   const [terminalOutput, setTerminalOutput] = useState<string>(`
     "Terminal initialized..."`);
   const [terminalInput, setTerminalInput] = useState("");
@@ -65,7 +65,7 @@ function WorkSpace() {
   function onChange(newValue: string): void {
     setCode(newValue);
 
-    // console.log(code);
+    console.log(code);
   }
 
   // function handleTerminalSubmit(e: React.KeyboardEvent) {
