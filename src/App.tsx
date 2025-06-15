@@ -6,6 +6,8 @@ import { ReactNode } from "react";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import WorkSpace from "./components/WorkSpace";
 
+import WorkSpaceLibs from "./components/WorkSpaceLibs";
+
 function protectRoutes(element: ReactNode) {
   return <ProtectedRoute>{element}</ProtectedRoute>;
 }
@@ -19,6 +21,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={protectRoutes(<Dashboard />)} />
             <Route path="/workspace" element={protectRoutes(<WorkSpace />)} />
+            <Route
+              path="/workspace/:lib"
+              element={protectRoutes(<WorkSpaceLibs />)}
+            />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>
