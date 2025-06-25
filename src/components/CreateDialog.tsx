@@ -25,6 +25,8 @@ import { setLang } from "@/redux/feature/langs/langOptionsSlice";
 import { Bounce, toast } from "react-toastify";
 import { axiosInstance } from "@/utils/axiosInstace";
 import { setFileId } from "@/redux/feature/file/fileSlice";
+import { ContainerIcon } from "lucide-react";
+import { AxiosResponse } from "axios";
 
 interface CreateDialogProps {
   open: boolean;
@@ -60,25 +62,42 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
     setLoading(true);
 
     let resStatusCode: number = 0;
+    let containerId: string = "";
+    let fileId: string = "";
+    let response: AxiosResponse<any> | null = null;
 
     try {
-      const response = await axiosInstance.post(`/api/container/create`, {
-        fileName,
-        language: selectedOption,
-        userId,
-      });
+      if (activeTab === "languages") {
+        response = await axiosInstance.post(`/api/container/create`, {
+          fileName,
+          language: selectedOption,
+          userId,
+        });
+      } else {
+        response = await axiosInstance.post("/api/container/project", {
+          userId,
+          stack: setSelectedOption,
+          projectName: fileName,
+        });
+      }
 
-      //storing response ids in vars
-      const containerId = response.data.containerId;
-      const fileId = response.data.file.fileId;
+      //storing response ids in variables
+      if (response) {
+        console.log(response);
+        containerId = response.data.containerId;
+        // fileId = response.data.file.fileId;
 
-      if (containerId && fileId) {
+        // dispatch(setContainerId(containerId)); //temp for now
+        // sessionStorage.setItem("containerId", containerId);
+      }
+
+      if (containerId) {
         //dispatching ids in redux
         dispatch(setContainerId(containerId));
-        dispatch(setFileId(fileId));
+        // dispatch(setFileId(fileId));
 
         //storing ids in session for rehydrating redux on page refresh
-        sessionStorage.setItem("fileId", fileId);
+        // sessionStorage.setItem("fileId", fileId);
         sessionStorage.setItem("containerId", containerId);
       } else {
         toast.error("unable to create workspace", {
@@ -93,6 +112,9 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
           transition: Bounce,
         });
       }
+
+      // dispatch(setContainerId(containerId)); //temp for now
+      // sessionStorage.setItem("containerId", containerId);
     } catch (error: any) {
       console.log(error.response.data.clientMsg);
       // console.log(error.response.status);
@@ -113,7 +135,7 @@ function CreateDialog({ open, onOpenChange }: CreateDialogProps) {
     } finally {
       setLoading(false);
 
-      if (resStatusCode === 429) {
+      if (resStatusCode === 429 && !containerId && !fileId) {
         return;
       } else {
         if (activeTab == "languages") {
